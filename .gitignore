@@ -16,6 +16,7 @@ pyigl_classes.cpython*
 __pycache__
 
 igl.egg-info
+libigl.egg-info
 *.code-workspace
 out.obj
 test.off
@@ -26,9 +27,14 @@ site
 
 **/meshplot
 
+.DS_Store
 
 ttt.py
 *coverage*
 htmlcov
 junit
 .ipynb_checkpoints/tutorials-checkpoint.ipynb
+.*.un~
+.*.swp
+.*.swo
+*~

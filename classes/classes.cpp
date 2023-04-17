@@ -9,8 +9,15 @@
 
 namespace py = pybind11;
 
+// Forward declaration
+template <int DIM>
+void init_AABB(py::module_ &);
+
 PYBIND11_MODULE(pyigl_classes, m)
 {
+  init_AABB<2>(m);
+  init_AABB<3>(m);
+
   py::class_<igl::ARAPData>(m, "ARAP")
       .def(py::init([](Eigen::MatrixXd &v, Eigen::MatrixXi &f, int dim, Eigen::MatrixXi &b,
                        const int energy_type, const bool with_dynamics, const double h, const double ym, const int max_iter) {
@@ -20,7 +27,7 @@ PYBIND11_MODULE(pyigl_classes, m)
              }
              else if (dim == 2)
              {
-               assert_valid_3d_tri_mesh(v, f);
+               assert_valid_23d_tri_mesh(v, f);
              }
              else
              {
@@ -134,18 +141,14 @@ PYBIND11_MODULE(pyigl_classes, m)
            py::arg("verbosity") = 0, py::arg("max_iter") = 100)
       .def(
           "solve", [](igl::BBWData &self, Eigen::MatrixXd &V, Eigen::MatrixXi &F, Eigen::VectorXi &b, Eigen::MatrixXd &bc) {
-            if (V.cols() != 3)
-            {
-              throw pybind11::value_error("Invalid dimension. Argument V must have shape (#vertices, 3)");
-            }
             // Triangle mesh
             if (F.cols() == 3)
             {
-              if (V.cols() != 2)
-              {
-                throw pybind11::value_error("Invalid dimension for argument v_init. Must have shape (#vertices, 2) for triangle mesh inputs. You passed in V with shape (" + std::to_string(V.rows()) + std::string(", ") + std::to_string(V.cols()) + std::string(")"));
-              }
               // Tet mesh
+              if (V.cols() != 2 && V.cols() != 3)
+              {
+                throw pybind11::value_error("Invalid dimension. Argument V must have shape (#vertices, 2) or (#vertices, 3) for tri mesh inputs. You passed in V with shape (" + std::to_string(V.rows()) + std::string(", ") + std::to_string(V.cols()) + std::string(")"));
+              }
             }
             else if (F.cols() == 4)
             {
@@ -201,7 +204,7 @@ PYBIND11_MODULE(pyigl_classes, m)
            py::arg("P"), py::arg("SC"), py::arg("S"), py::arg("E"), py::arg("b"), py::arg("wShape"), py::arg("wSmooth"), py::arg("maxIterations") = 50, py::arg("pTolerance") = 1e-6)
       .def(
           "solve", [](igl::ShapeupData &self, Eigen::MatrixXd bc, const Eigen::MatrixXd &P0, const std::string &local_projection, const bool quietIterations) {
-            if(bc.size() == 3 && bc.rows() == 3)
+            if (bc.size() == 3 && bc.rows() == 3)
               bc.transposeInPlace();
             assert_cols_equals(bc, 3, "bc");
             assert_cols_equals(P0, 3, "P0");
