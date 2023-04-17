@@ -43,8 +43,9 @@ npe_begin_code()
 
   assert_valid_23d_tri_mesh(v, f);
   EigenDenseLike<npe_Matrix_v> b;
+  EigenDenseLike<npe_Matrix_v> pc;
   EigenDenseLike<npe_Matrix_f> fi;
-  igl::random_points_on_mesh(n, v, f, b, fi);
-  return std::make_tuple(npe::move(b), npe::move(fi));
+  igl::random_points_on_mesh(n, v, f, b, fi, pc);
+  return std::make_tuple(npe::move(b), npe::move(fi), npe::move(pc));
 
 npe_end_code()
